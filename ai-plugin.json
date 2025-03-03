@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "diettracker",
+  "name_for_human": "Diet Tracker",
+  "description_for_model": "Access diet tracking data including goals, meals, and macro totals.",
+  "description_for_human": "This plugin allows ChatGPT to query your diet tracking database.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://your-domain.com/openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://your-domain.com/logo.png",
+  "contact_email": "support@your-domain.com",
+  "legal_info_url": "https://your-domain.com/legal"
+}
