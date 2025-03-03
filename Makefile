@@ -1,24 +1,36 @@
 .PHONY: deploy destroy clean help
 
-# Default namespace is "default" unless overridden
+# Default namespace is "default" unless overridden via command line, e.g. make deploy NAMESPACE=myproject
 NAMESPACE ?= default
 
-# Deploy target: This calls the deploy.sh script with the namespace parameter.
 deploy:
 	@echo "Deploying Terraform resources with namespace: $(NAMESPACE)"
-	./deploy.sh $(NAMESPACE)
+	@echo "Compressing lambda_function.py into lambda.zip..."
+	zip -j lambda.zip lambda_function.py
+	@echo "Moving lambda.zip into the 'tf' directory..."
+	mv lambda.zip tf/lambda.zip
+	@echo "Changing directory to 'tf' and initializing Terraform..."
+	@cd tf && terraform init
+	@echo "Creating Terraform plan..."
+	@cd tf && terraform plan -var="namespace=$(NAMESPACE)" -out=tfplan
+	@echo "Ready to apply Terraform plan."
+	@cd tf && \
+		read -p "Apply the Terraform plan? (yes/no): " CONFIRM && \
+		if [ "$$CONFIRM" = "yes" ]; then \
+			terraform apply tfplan; \
+		else \
+			echo "Deployment canceled."; \
+			exit 0; \
+		fi
 
-# Destroy target: Changes into the tf directory and destroys the resources.
 destroy:
 	@echo "Tearing down Terraform resources with namespace: $(NAMESPACE)"
-	cd tf && terraform destroy -var="namespace=$(NAMESPACE)" -auto-approve
+	@cd tf && terraform destroy -var="namespace=$(NAMESPACE)" -auto-approve
 
-# Clean target: Optionally remove temporary files, e.g. the lambda.zip in the tf directory.
 clean:
 	@echo "Cleaning up temporary files..."
-	rm -f tf/lambda.zip
+	@rm -f tf/lambda.zip
 
-# Help target: Displays usage information.
 help:
 	@echo "Usage:"
 	@echo "  make deploy [NAMESPACE=your_namespace]   - Deploy resources with an optional namespace."
