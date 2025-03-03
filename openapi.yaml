@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  title: Diet Tracker API
+  version: "1.0.0"
+  description: API for setting daily diet goals, logging meals, and tracking macros.
+servers:
+  - url: https://{api_id}.execute-api.{region}.amazonaws.com/prod
+    description: API Gateway endpoint
+    variables:
+      api_id:
+        default: your_api_id_here
+      region:
+        default: us-east-1
+paths:
+  /set-goals:
+    post:
+      summary: Set daily diet goals
+      description: Set goals for calories, protein, carbs, and fat for a given date.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - calories
+                - protein
+                - carbs
+                - fat
+              properties:
+                date:
+                  type: string
+                  format: date
+                  example: "2025-03-03"
+                calories:
+                  type: number
+                  example: 2000
+                protein:
+                  type: number
+                  example: 150
+                carbs:
+                  type: number
+                  example: 250
+                fat:
+                  type: number
+                  example: 70
+      responses:
+        '200':
+          description: Goals set successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Goals for 2025-03-03 set successfully."
+  /log-meal:
+    post:
+      summary: Log a meal
+      description: Log a meal entry with meal type and nutritional information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - meal_type
+                - calories
+                - protein
+                - carbs
+                - fat
+              properties:
+                date:
+                  type: string
+                  format: date
+                  example: "2025-03-03"
+                meal_type:
+                  type: string
+                  enum: [breakfast, lunch, dinner, snack, unspecified]
+                  example: "lunch"
+                calories:
+                  type: number
+                  example: 500
+                protein:
+                  type: number
+                  example: 30
+                carbs:
+                  type: number
+                  example: 60
+                fat:
+                  type: number
+                  example: 20
+      responses:
+        '200':
+          description: Meal logged successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Meal logged for 2025-03-03."
+  /track-macros:
+    get:
+      summary: Track aggregated macros
+      description: Retrieve aggregated macro totals and daily goals along with the number of meals logged for a specific date.
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Date for which to retrieve macro totals.
+      responses:
+        '200':
+          description: Aggregated macros and goals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                    example: "2025-03-03"
+                  goals:
+                    type: object
+                    properties:
+                      calories:
+                        type: number
+                        example: 2000
+                      protein:
+                        type: number
+                        example: 150
+                      carbs:
+                        type: number
+                        example: 250
+                      fat:
+                        type: number
+                        example: 70
+                  totals:
+                    type: object
+                    properties:
+                      calories:
+                        type: number
+                        example: 1800
+                      protein:
+                        type: number
+                        example: 140
+                      carbs:
+                        type: number
+                        example: 240
+                      fat:
+                        type: number
+                        example: 65
+                  meals_logged:
+                    type: integer
+                    example: 3
