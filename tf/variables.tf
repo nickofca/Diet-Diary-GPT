@@ -1,0 +1,11 @@
+variable "namespace" {
+  description = "A namespace to prefix resource names"
+  type        = string
+  default     = "default"
+}
+
+variable "region" {
+  description = "AWS Region"
+  type        = string
+  default     = "us-east-1"
+}
