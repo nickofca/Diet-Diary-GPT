@@ -2,7 +2,7 @@ resource "aws_s3_bucket" "plugin_bucket" {
   bucket = var.plugin_bucket_name
 
   website {
-    index_document = "index.html"   # You can supply a dummy index.html if desired
+    index_document = "index.html"
     error_document = "error.html"
   }
 }
@@ -10,17 +10,11 @@ resource "aws_s3_bucket" "plugin_bucket" {
 resource "aws_s3_bucket_object" "openapi" {
   bucket       = aws_s3_bucket.plugin_bucket.bucket
   key          = "openapi.yaml"
-  source       = "${path.module}/../openapi.yaml"
+  content      = templatefile("../openapi.tftpl", {
+    api_id = aws_api_gateway_rest_api.diet_tracker_api.id
+    region = var.region
+  })
   content_type = "text/yaml"
-  # acl removed
-}
-
-resource "aws_s3_bucket_object" "plugin_manifest" {
-  bucket       = aws_s3_bucket.plugin_bucket.bucket
-  key          = "ai-plugin.json"
-  source       = "${path.module}/../ai-plugin.json"
-  content_type = "application/json"
-  # acl removed
 }
 
 resource "aws_s3_bucket_policy" "plugin_bucket_policy" {
