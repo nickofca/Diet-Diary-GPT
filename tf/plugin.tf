@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "plugin_bucket" {
 resource "aws_s3_bucket_object" "openapi" {
   bucket       = aws_s3_bucket.plugin_bucket.bucket
   key          = "openapi.yaml"
-  content      = templatefile("../openapi.tftpl", {
+  content      = templatefile("${path.module}/templates/openapi.tftpl", {
     api_id = aws_api_gateway_rest_api.diet_tracker_api.id
     region = var.region
   })
