@@ -2,37 +2,31 @@
 # This script provides a function to add a valid user by computing the SHA-256 hash of a given security key
 # and inserting it into the DynamoDB ValidUsers table.
 
-# Usage: add_valid_user "your-plain-text-security-key"
-function add_valid_user() {
-    if [ -z "$1" ]; then
-        echo "Usage: add_valid_user <security_key>"
-        return 1
-    fi
+if [ -z "$1" ]; then
+    echo "Usage: add_valid_user.sh <security_key>"
+    return 1
+fi
 
-    SECURITY_KEY="$1"
-    # Compute the SHA-256 hash
-    USER_HASH=$(echo -n "$SECURITY_KEY" | sha256sum | awk '{print $1}')
-    echo "Computed user hash: $USER_HASH"
+SECURITY_KEY="$1"
+# Compute the SHA-256 hash
+USER_HASH=$(echo -n "$SECURITY_KEY" | sha256sum | awk '{print $1}')
+echo "Computed user hash: $USER_HASH"
 
-    # Check if AWS CLI is installed
-    if ! command -v aws &> /dev/null; then
-        echo "AWS CLI not found. Please install and configure it."
-        return 1
-    fi
+# Check if AWS CLI is installed
+if ! command -v aws &> /dev/null; then
+    echo "AWS CLI not found. Please install and configure it."
+    return 1
+fi
 
-    # Insert the user hash into the ValidUsers table
-    aws dynamodb put-item \
-        --table-name "${valid_users_table}" \
-        --item "{\"user\": {\"S\": \"$USER_HASH\"}}" \
-        --output table
+# Insert the user hash into the ValidUsers table
+aws dynamodb put-item \
+    --table-name "${valid_users_table}" \
+    --item "{\"user\": {\"S\": \"$USER_HASH\"}}" \
+    --output table
 
-    if [ $? -eq 0 ]; then
-        echo "User successfully added with hash: $USER_HASH"
-    else
-        echo "Failed to add user."
-        return 1
-    fi
-}
-
-# Uncomment below for a quick test
-# add_valid_user "your-plain-text-security-key"
+if [ $? -eq 0 ]; then
+    echo "User successfully added with hash: $USER_HASH"
+else
+    echo "Failed to add user."
+    return 1
+fi
