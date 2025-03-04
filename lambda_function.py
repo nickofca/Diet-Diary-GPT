@@ -2,7 +2,13 @@ import os
 import json
 import boto3
 import uuid
+import logging
 from datetime import datetime
+from boto3.dynamodb.conditions import Key  # Direct import for cleaner usage
+
+# Set up basic logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # Retrieve DynamoDB table names from environment variables
 GOALS_TABLE_NAME = os.environ.get('GOALS_TABLE_NAME', 'default-DietGoals')
@@ -41,6 +47,7 @@ def set_goals(event):
         })
         return response(200, f"Goals for {date} set successfully.")
     except Exception as e:
+        logger.error("Error in set_goals: %s", e, exc_info=True)
         return response(500, str(e))
 
 
@@ -76,6 +83,7 @@ def log_meal(event):
         })
         return response(200, f"Meal logged for {date}.")
     except Exception as e:
+        logger.error("Error in log_meal: %s", e, exc_info=True)
         return response(500, str(e))
 
 
@@ -92,7 +100,7 @@ def track_macros(event):
 
         # Retrieve all meal logs for the specified date
         result = meals_table.query(
-            KeyConditionExpression=boto3.dynamodb.conditions.Key('date').eq(date)
+            KeyConditionExpression=Key('date').eq(date)
         )
         meals = result.get('Items', [])
 
@@ -116,6 +124,7 @@ def track_macros(event):
         }
         return response(200, result_body)
     except Exception as e:
+        logger.error("Error in track_macros: %s", e, exc_info=True)
         return response(500, str(e))
 
 
