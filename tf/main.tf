@@ -249,7 +249,7 @@ resource "aws_lambda_permission" "apigw_lambda" {
 #########################
 
 resource "local_file" "add_valid_user_script" {
-  filename        = "${path.module}/add_valid_user.sh"
+  filename        = "${path.module}/../generated_resources/add_valid_user.sh"
   file_permission = "0755"
   content         = templatefile("${path.module}/templates/add_valid_user.tftpl", {
     valid_users_table = aws_dynamodb_table.valid_users.name
