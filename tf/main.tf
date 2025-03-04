@@ -9,7 +9,13 @@ provider "aws" {
 resource "aws_dynamodb_table" "diet_goals" {
   name         = "${var.namespace}-DietGoals"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "date"
+  hash_key     = "user"
+  range_key    = "date"
+
+  attribute {
+    name = "user"
+    type = "S"
+  }
 
   attribute {
     name = "date"
@@ -24,21 +30,36 @@ resource "aws_dynamodb_table" "diet_goals" {
 resource "aws_dynamodb_table" "meal_logs" {
   name         = "${var.namespace}-MealLogs"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "date"
-  range_key    = "meal_id"
+  hash_key     = "user"
+  range_key    = "date_meal"
 
   attribute {
-    name = "date"
+    name = "user"
     type = "S"
   }
 
   attribute {
-    name = "meal_id"
+    name = "date_meal"
     type = "S"
   }
 
   tags = {
     Name = "${var.namespace}-MealLogs"
+  }
+}
+
+resource "aws_dynamodb_table" "valid_users" {
+  name         = "${var.namespace}-ValidUsers"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "user"
+
+  attribute {
+    name = "user"
+    type = "S"
+  }
+
+  tags = {
+    Name = "${var.namespace}-ValidUsers"
   }
 }
 
@@ -75,7 +96,8 @@ resource "aws_iam_policy" "lambda_policy" {
         Effect   = "Allow",
         Resource = [
           aws_dynamodb_table.diet_goals.arn,
-          aws_dynamodb_table.meal_logs.arn
+          aws_dynamodb_table.meal_logs.arn,
+          aws_dynamodb_table.valid_users.arn
         ]
       },
       {
@@ -100,7 +122,6 @@ resource "aws_iam_role_policy_attachment" "lambda_attach" {
 # Lambda Function Setup
 #########################
 
-# Make sure your Lambda deployment package (lambda.zip) is in the same directory or update the path accordingly.
 resource "aws_lambda_function" "diet_tracker_lambda" {
   filename         = "lambda.zip"
   function_name    = "${var.namespace}-diet_tracker_function"
@@ -112,8 +133,9 @@ resource "aws_lambda_function" "diet_tracker_lambda" {
 
   environment {
     variables = {
-      GOALS_TABLE_NAME = aws_dynamodb_table.diet_goals.name
-      MEALS_TABLE_NAME = aws_dynamodb_table.meal_logs.name
+      GOALS_TABLE_NAME       = aws_dynamodb_table.diet_goals.name
+      MEALS_TABLE_NAME       = aws_dynamodb_table.meal_logs.name
+      VALID_USERS_TABLE_NAME = aws_dynamodb_table.valid_users.name
     }
   }
 }
@@ -127,7 +149,6 @@ resource "aws_api_gateway_rest_api" "diet_tracker_api" {
   description = "API for diet tracking application"
 }
 
-# Create resources for each endpoint
 resource "aws_api_gateway_resource" "set_goals_resource" {
   rest_api_id = aws_api_gateway_rest_api.diet_tracker_api.id
   parent_id   = aws_api_gateway_rest_api.diet_tracker_api.root_resource_id
@@ -145,8 +166,6 @@ resource "aws_api_gateway_resource" "track_macros_resource" {
   parent_id   = aws_api_gateway_rest_api.diet_tracker_api.root_resource_id
   path_part   = "track-macros"
 }
-
-# Methods and Integrations
 
 # /set-goals (POST)
 resource "aws_api_gateway_method" "set_goals_post" {
@@ -223,4 +242,16 @@ resource "aws_lambda_permission" "apigw_lambda" {
   function_name = aws_lambda_function.diet_tracker_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.diet_tracker_api.execution_arn}/*/*"
+}
+
+#########################
+# Generate the Support Bash Script from Template
+#########################
+
+resource "local_file" "add_valid_user_script" {
+  filename        = "${path.module}/add_valid_user.sh"
+  file_permission = "0755"
+  content         = templatefile("${path.module}/templates/add_valid_user.tftpl", {
+    valid_users_table = aws_dynamodb_table.valid_users.name
+  })
 }
