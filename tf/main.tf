@@ -31,7 +31,7 @@ resource "aws_dynamodb_table" "meal_logs" {
   name         = "${var.namespace}-MealLogs"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "user"
-  range_key    = "date_meal"
+  range_key    = "date"
 
   attribute {
     name = "user"
@@ -39,7 +39,7 @@ resource "aws_dynamodb_table" "meal_logs" {
   }
 
   attribute {
-    name = "date_meal"
+    name = "date"
     type = "S"
   }
 

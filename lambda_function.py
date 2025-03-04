@@ -33,7 +33,9 @@ def get_user_key(event):
     Extracts and converts the security key from the headers into a unique user key,
     then verifies the user exists in the valid users table.
     """
-    security_key = event.get("headers", {}).get("X-Security-Key")
+    headers = event.get("headers", {})
+    # Check for both original and lower-case header keys
+    security_key = headers.get("X-Security-Key") or headers.get("x-security-key")
     if not security_key:
         raise ValueError("Security key is missing.")
     user_key = hashlib.sha256(security_key.encode('utf-8')).hexdigest()
