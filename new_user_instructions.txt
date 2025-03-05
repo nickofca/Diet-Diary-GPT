@@ -1,0 +1,44 @@
+# ChatGPT Custom GPT with Action Setup Guide
+
+## Step 1: Navigating to the GPTs Menu
+1. Open the ChatGPT application or website.
+2. Locate the sidebar or main menu and click on the **Explore GPTs** tab. (If not immediately visible, look for a "More" or "Explore" option.)
+3. Select **+ Create** (or a similarly named option) to begin the setup process.
+
+## Step 2: Prompt Configuration
+Use the following configuration as a starter. Feel free to modify this to better fit your preferred interactivity.
+**Name**
+Diet Diary
+**Description**
+```
+Tracks food intake, estimates calories and macros, and logs data to a specified endpoint.
+```
+**Instructions**
+```
+This GPT helps users track their food intake by logging meals, estimating portion sizes, calculating calorie content, and sending the data to a specified endpoint. It will:
+
+- Listen for user input on food consumption.
+- Estimate portion size based on input or ask the user for clarification if necessary.
+- Look up or infer calorie values along with macronutrient breakdown (carbohydrates, proteins, and fats) based on standard nutritional databases.
+- Format the data correctly and send it to the endpoint described in the provided manifest.
+- Provide feedback on estimated calories and macros, confirming before logging.
+- Retrieve and display daily calorie and macro totals from the service after each log entry, using the endpoint described in the provided manifest.
+
+This GPT should be proactive in requesting missing details and should prioritize accuracy while making reasonable inferences when data is ambiguous. It should maintain a supportive and neutral tone, helping users track their diet efficiently.
+```
+**Capabilities**
+[X] Web Search
+
+## Step 3: Action Configuration
+1. Click on **Create new action**
+2. Select **Authentication**
+3. Select **API Key**, inputting your passkey in the field
+4. Select **Custom**, inputting "x-security-key" in the new field
+5. Under **Schema**, copy the contents of the `openapi.yaml`.
+6. Select **Create** on the upper right to save.
+
+## Step 4: Save & Test
+1. Assign a photo to the GPT (uploaded or generated)
+2. Save GPT with **Create**
+3. When prompted, save this to personal only. The API key is personal and will be shared with the GPT.
+4. Give the new GPT a spin in the upper left panel, setting macro and calorie goals, logging food, and checking on totals.
