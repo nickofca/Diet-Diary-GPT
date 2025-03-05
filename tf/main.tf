@@ -12,10 +12,6 @@ resource "aws_dynamodb_table" "diet_goals" {
   hash_key     = "user"
   range_key    = "date"
 
-  lifecycle {
-    prevent_destroy = true
-  }
-
   attribute {
     name = "user"
     type = "S"
@@ -37,10 +33,6 @@ resource "aws_dynamodb_table" "meal_logs" {
   hash_key     = "user"
   range_key    = "date"
 
-  lifecycle {
-    prevent_destroy = true
-  }
-
   attribute {
     name = "user"
     type = "S"
@@ -60,10 +52,6 @@ resource "aws_dynamodb_table" "valid_users" {
   name         = "${var.namespace}-ValidUsers"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "user"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 
   attribute {
     name = "user"
