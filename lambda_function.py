@@ -7,6 +7,7 @@ import decimal
 import hashlib
 from datetime import datetime
 from boto3.dynamodb.conditions import Key  # Direct import for cleaner usage
+from typing import Any, Dict, Union
 
 # Set up basic logging
 logger = logging.getLogger()
@@ -23,15 +24,36 @@ goals_table = dynamodb.Table(GOALS_TABLE_NAME)
 meals_table = dynamodb.Table(MEALS_TABLE_NAME)
 valid_users_table = dynamodb.Table(VALID_USERS_TABLE_NAME)
 
-def decimal_default(obj):
+def decimal_default(obj: Any) -> float:
+    """
+    JSON serializer for objects not serializable by default JSON code.
+
+    Args:
+        obj (Any): The object to serialize.
+
+    Returns:
+        float: The float representation if obj is a decimal.Decimal.
+
+    Raises:
+        TypeError: If the object is not an instance of decimal.Decimal.
+    """
     if isinstance(obj, decimal.Decimal):
         return float(obj)
     raise TypeError
 
-def get_user_key(event):
+def get_user_key(event: Dict[str, Any]) -> str:
     """
     Extracts and converts the security key from the headers into a unique user key,
     then verifies the user exists in the valid users table.
+
+    Args:
+        event (Dict[str, Any]): The event dictionary containing headers.
+
+    Returns:
+        str: A SHA-256 hashed user key.
+
+    Raises:
+        ValueError: If the security key is missing or the user is unauthorized.
     """
     headers = event.get("headers", {})
     # Check for both original and lower-case header keys
@@ -40,13 +62,15 @@ def get_user_key(event):
         raise ValueError("Security key is missing.")
     user_key = hashlib.sha256(security_key.encode('utf-8')).hexdigest()
     # Validate user against the valid users table
-    response = valid_users_table.get_item(Key={'user': user_key})
-    if 'Item' not in response:
+    response_item = valid_users_table.get_item(Key={'user': user_key})
+    if 'Item' not in response_item:
         raise ValueError("Unauthorized: Invalid user.")
     return user_key
 
-def set_goals(event):
+def set_goals(event: Dict[str, Any]) -> Dict[str, Any]:
     """
+    Sets daily nutritional goals for a user in the DynamoDB table.
+
     Expected JSON body:
     {
         "date": "YYYY-MM-DD",
@@ -55,6 +79,12 @@ def set_goals(event):
         "carbs": 250,
         "fat": 70
     }
+
+    Args:
+        event (Dict[str, Any]): The event containing the HTTP request data.
+
+    Returns:
+        Dict[str, Any]: An HTTP response with status code and message.
     """
     try:
         user_key = get_user_key(event)
@@ -79,8 +109,10 @@ def set_goals(event):
         logger.error("Error in set_goals: %s", e, exc_info=True)
         return response(500, str(e))
 
-def log_meal(event):
+def log_meal(event: Dict[str, Any]) -> Dict[str, Any]:
     """
+    Logs a meal entry with nutritional information for a user in the DynamoDB table.
+
     Expected JSON body:
     {
         "date": "YYYY-MM-DD",
@@ -90,6 +122,12 @@ def log_meal(event):
         "carbs": 60,
         "fat": 20
     }
+
+    Args:
+        event (Dict[str, Any]): The event containing the HTTP request data.
+
+    Returns:
+        Dict[str, Any]: An HTTP response with status code and message.
     """
     try:
         user_key = get_user_key(event)
@@ -118,10 +156,18 @@ def log_meal(event):
         logger.error("Error in log_meal: %s", e, exc_info=True)
         return response(500, str(e))
 
-def track_macros(event):
+def track_macros(event: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Expects a query parameter 'date'
-    Returns aggregated macros for the day along with set goals.
+    Aggregates and returns nutritional information for a specified day,
+    including total macros from meal logs and set goals.
+
+    Expects a query parameter 'date'.
+
+    Args:
+        event (Dict[str, Any]): The event containing HTTP request data, including query parameters.
+
+    Returns:
+        Dict[str, Any]: An HTTP response containing the aggregated macros, goals, and the count of meals logged.
     """
     try:
         user_key = get_user_key(event)
@@ -161,8 +207,17 @@ def track_macros(event):
         logger.error("Error in track_macros: %s", e, exc_info=True)
         return response(500, str(e))
 
-def response(status_code, message):
-    """Helper function to build a response."""
+def response(status_code: int, message: Any) -> Dict[str, Any]:
+    """
+    Constructs a standardized HTTP response.
+
+    Args:
+        status_code (int): The HTTP status code.
+        message (Any): The response message or body.
+
+    Returns:
+        Dict[str, Any]: The HTTP response object.
+    """
     return {
         'statusCode': status_code,
         'body': json.dumps(message, default=decimal_default),
@@ -171,9 +226,16 @@ def response(status_code, message):
         }
     }
 
-def lambda_handler(event, context):
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Main Lambda handler that routes the request based on the path and HTTP method.
+    AWS Lambda handler function that routes the request based on the HTTP path and method.
+
+    Args:
+        event (Dict[str, Any]): The event data passed by AWS Lambda.
+        context (Any): The runtime information provided by AWS Lambda.
+
+    Returns:
+        Dict[str, Any]: The HTTP response object.
     """
     path = event.get('path', '')
     http_method = event.get('httpMethod', '')
