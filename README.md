@@ -153,7 +153,7 @@ Contributions are welcome. Please fork this repository and submit pull requests 
 
 ## License
 
-This project is licensed under the MIT License. See the [`LICENSE`](`LICENSE`) file for details.
+Diet Diary GPT © 2025 by Nicholas Ziolkowski is licensed under CC BY-NC-SA 4.0. See the [`LICENSE`](`LICENSE`) file for details.
 
 ## Contact
 
