@@ -14,7 +14,7 @@ This project deploys a Diet Tracking Application backend using AWS Lambda, Dynam
 
 Ensure that your AWS credentials include permissions similar to the following policy. This policy allows creation of DynamoDB tables, IAM roles/policies, and API Gateway resources:
 
-``json
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -86,7 +86,7 @@ Ensure that your AWS credentials include permissions similar to the following po
         }
     ]
 }
-``
+```
 
 *Note:* For development or testing, you might temporarily use an account with AdministratorAccess. For production, apply the least-privilege principle.
 
@@ -98,17 +98,17 @@ The deployment is managed by a Makefile that integrates the steps to package the
 
 Run the following command from the project root (you can specify a custom namespace if desired):
 
-``bash
+```bash
 make deploy NAMESPACE=mycustomnamespace
-``
+```
 
 ## Destroying Resources
 
 To tear down all resources created by this deployment, use the following command:
 
-``bash
+```bash
 make destroy NAMESPACE=mycustomnamespace
-``
+```
 
 This command will remove all deployed AWS resources managed by Terraform. **Caution:** Ensure you want to delete these resources as this action cannot be undone.
 
@@ -126,18 +126,18 @@ To update the Lambda function code:
 1. Modify the `lambda_function.py` file as needed.
 2. Redeploy the changes with:
    
-   ``bash
+   ```bash
    make deploy NAMESPACE=mycustomnamespace
-   ``
+   ```
 
 ## Adding a user
 After deploying, you can add users to the application.
 1. Request or assign a passphrase from user
 2. Submit passphrase to the user database
    
-   ``bash
+   ```bash
    ./generated_resources/add_valid_user.sh "<passphrase>"
-   ``
+   ```
 3. Send instructions in 'new_user_instructions.txt' and 'openapi.yaml' to new user.
 
 ## Troubleshooting
