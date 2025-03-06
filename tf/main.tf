@@ -229,7 +229,12 @@ resource "aws_api_gateway_deployment" "diet_tracker_deployment" {
     aws_api_gateway_integration.track_macros_integration
   ]
   rest_api_id = aws_api_gateway_rest_api.diet_tracker_api.id
-  stage_name  = "prod"
+}
+
+resource "aws_api_gateway_stage" "prod" {
+  deployment_id = aws_api_gateway_deployment.diet_tracker_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.diet_tracker_api.id
+  stage_name    = "prod"
 }
 
 #################################
@@ -254,4 +259,16 @@ resource "local_file" "add_valid_user_script" {
   content         = templatefile("${path.module}/templates/add_valid_user.tftpl", {
     valid_users_table = aws_dynamodb_table.valid_users.name
   })
+}
+
+#########################
+# Generate the config file for ChatGPT consumption
+#########################
+
+resource "local_file" "openapi" {
+  content      = templatefile("${path.module}/templates/openapi.tftpl", {
+    api_id = aws_api_gateway_rest_api.diet_tracker_api.id
+    region = var.region
+  })
+  filename        = "${path.module}/../generated_resources/openapi.yaml"
 }
