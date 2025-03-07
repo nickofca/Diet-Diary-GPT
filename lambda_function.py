@@ -178,6 +178,7 @@ def track_macros(event: Dict[str, Any]) -> Dict[str, Any]:
 
         # Retrieve all meal logs for the specified user and date
         result = meals_table.query(
+            IndexName='UserDateIndex',
             KeyConditionExpression=Key('user').eq(user_key) & Key('date').eq(date)
         )
         meals = result.get('Items', [])

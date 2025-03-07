@@ -92,42 +92,38 @@ resource "aws_iam_role" "lambda_role" {
     }]
   })
 }
-
-resource "aws_iam_policy" "lambda_policy" {
-  name        = "${var.namespace}-diet_tracker_lambda_policy"
-  description = "Policy for Lambda to access DynamoDB and CloudWatch logs"
-  policy      = jsonencode({
+# Inline policy granting necessary DynamoDB and CloudWatch Logs permissions
+resource "aws_iam_role_policy" "lambda_policy" {
+  name = "prod-diet_tracker_lambda_policy"
+  role = aws_iam_role.lambda_role.id
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
+        Effect = "Allow",
         Action = [
-          "dynamodb:PutItem",
           "dynamodb:GetItem",
+          "dynamodb:PutItem",
           "dynamodb:Query"
         ],
-        Effect   = "Allow",
         Resource = [
-          aws_dynamodb_table.diet_goals.arn,
           aws_dynamodb_table.meal_logs.arn,
+          "${aws_dynamodb_table.meal_logs.arn}/index/UserDateIndex",
+          aws_dynamodb_table.diet_goals.arn,
           aws_dynamodb_table.valid_users.arn
         ]
       },
       {
+        Effect = "Allow",
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ],
-        Effect   = "Allow",
         Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_attach" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_policy.arn
 }
 
 #########################
