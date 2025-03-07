@@ -181,10 +181,11 @@ resource "aws_api_gateway_resource" "track_macros_resource" {
 
 # /set-goals (POST)
 resource "aws_api_gateway_method" "set_goals_post" {
-  rest_api_id   = aws_api_gateway_rest_api.diet_tracker_api.id
-  resource_id   = aws_api_gateway_resource.set_goals_resource.id
-  http_method   = "POST"
-  authorization = "NONE"
+  rest_api_id     = aws_api_gateway_rest_api.diet_tracker_api.id
+  resource_id     = aws_api_gateway_resource.set_goals_resource.id
+  http_method     = "POST"
+  authorization   = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "set_goals_integration" {
@@ -198,10 +199,11 @@ resource "aws_api_gateway_integration" "set_goals_integration" {
 
 # /log-meal (POST)
 resource "aws_api_gateway_method" "log_meal_post" {
-  rest_api_id   = aws_api_gateway_rest_api.diet_tracker_api.id
-  resource_id   = aws_api_gateway_resource.log_meal_resource.id
-  http_method   = "POST"
-  authorization = "NONE"
+  rest_api_id     = aws_api_gateway_rest_api.diet_tracker_api.id
+  resource_id     = aws_api_gateway_resource.log_meal_resource.id
+  http_method     = "POST"
+  authorization   = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "log_meal_integration" {
@@ -215,10 +217,11 @@ resource "aws_api_gateway_integration" "log_meal_integration" {
 
 # /track-macros (GET)
 resource "aws_api_gateway_method" "track_macros_get" {
-  rest_api_id   = aws_api_gateway_rest_api.diet_tracker_api.id
-  resource_id   = aws_api_gateway_resource.track_macros_resource.id
-  http_method   = "GET"
-  authorization = "NONE"
+  rest_api_id     = aws_api_gateway_rest_api.diet_tracker_api.id
+  resource_id     = aws_api_gateway_resource.track_macros_resource.id
+  http_method     = "GET"
+  authorization   = "NONE"
+  api_key_required = true
 }
 
 resource "aws_api_gateway_integration" "track_macros_integration" {
@@ -228,6 +231,49 @@ resource "aws_api_gateway_integration" "track_macros_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.diet_tracker_lambda.invoke_arn
+}
+
+#################################
+# API Gateway API Key Setup
+#################################
+
+resource "aws_api_gateway_api_key" "diet_tracker_api_key" {
+  name        = "${var.namespace}-api-key"
+  description = "API Key for the Diet Tracker API"
+  enabled     = true
+}
+
+#################################
+# API Gateway Usage Plan Setup
+#################################
+
+resource "aws_api_gateway_usage_plan" "diet_tracker_usage_plan" {
+  name = "${var.namespace}-usage-plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.diet_tracker_api.id
+    stage  = aws_api_gateway_stage.prod.stage_name
+  }
+
+  throttle_settings {
+    burst_limit = 100
+    rate_limit  = 50
+  }
+
+  quota_settings {
+    limit  = 10000
+    period = "MONTH"
+  }
+}
+
+#################################
+# Associate API Key with Usage Plan
+#################################
+
+resource "aws_api_gateway_usage_plan_key" "diet_tracker_usage_plan_key" {
+  key_id        = aws_api_gateway_api_key.diet_tracker_api_key.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.diet_tracker_usage_plan.id
 }
 
 #########################
