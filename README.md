@@ -68,13 +68,13 @@ After deploying, you can add users to the application.
 
 ## Demo Photos
 ### Meal Logging
-![Meal Logging](demo/meal_logging.png)
+![Meal Logging](demo/logging_food.png)
 
 ### Diet Diary Checking
-![Diet Diary Checking](demo/diet_diary.png)
+![Diet Diary Checking](demo/check_diet_diary.png)
 
 ### Personalized Goal Setting
-![Goal Setting](demo/goal_setting.png)
+![Goal Setting](demo/set_personalized_goals.png)
 
 
 ## Troubleshooting
