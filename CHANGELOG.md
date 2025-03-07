@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.1] - Update
+## [1.0.2] - Update
 
 ### 🔧 Changes
 - **Correct meal database keys**: Provide more comprehensive keys for the meal database to ensure that multiple meals can be logged a day with fast recall.
@@ -33,10 +33,10 @@
 ---
 
 ### 📢 Future Roadmap
-- Support for barcode scanning for food logging.
-- Personalized meal recommendations based on past logs.
-- Community-based food logging for better database expansion.
+- Account management portal with API key assignment
 - Frontend dashboard
+- Personalized meal recommendations based on past logs.
+- Support for barcode scanning for food logging.
 
 ---
 
