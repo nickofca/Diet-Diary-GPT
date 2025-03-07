@@ -3,6 +3,11 @@
 ## [1.0.1] - Update
 
 ### 🔧 Changes
+- **Correct meal database keys**: Provide more comprehensive keys for the meal database to ensure that multiple meals can be logged a day with fast recall.
+
+## [1.0.1] - Update
+
+### 🔧 Changes
 - **Removed Hosted OpenAPI Config**: The API specification is now distributed locally instead of being hosted remotely.
 
 ## [1.0.0] - Initial Release

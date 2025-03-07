@@ -31,7 +31,7 @@ resource "aws_dynamodb_table" "meal_logs" {
   name         = "${var.namespace}-MealLogs"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "user"
-  range_key    = "date"
+  range_key    = "meal_id"   # Use a unique identifier as the primary sort key
 
   attribute {
     name = "user"
@@ -39,8 +39,20 @@ resource "aws_dynamodb_table" "meal_logs" {
   }
 
   attribute {
+    name = "meal_id"
+    type = "S"
+  }
+
+  attribute {
     name = "date"
     type = "S"
+  }
+
+  global_secondary_index {
+    name            = "UserDateIndex"
+    hash_key        = "user"
+    range_key       = "date"
+    projection_type = "ALL"
   }
 
   tags = {
