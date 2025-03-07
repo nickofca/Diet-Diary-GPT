@@ -8,87 +8,9 @@ This project deploys a Diet Tracking Application backend using AWS Lambda, Dynam
 - **AWS CLI** configured with credentials that have the necessary permissions.
 - **zip** utility installed (used to package the Lambda function).
 
-## Required IAM Permissions
+## IAM Permissions
 
-> **NOTE:** This is not complete. Use AdminAccess in the meantime.
-
-Ensure that your AWS credentials include permissions similar to the following policy. This policy allows creation of DynamoDB tables, IAM roles/policies, and API Gateway resources:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:CreateTable",
-                "dynamodb:DeleteTable",
-                "dynamodb:DescribeTable",
-                "dynamodb:UpdateTable",
-                "dynamodb:PutItem",
-                "dynamodb:GetItem",
-                "dynamodb:Query",
-                "dynamodb:TagResource",
-                "dynamodb:DescribeContinuousBackups",
-                "dynamodb:DescribeTimeToLive",
-                "dynamodb:ListTagsOfResource"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateRole",
-                "iam:GetRole",
-                "iam:ListRolePolicies",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListInstanceProfilesForRole",
-                "iam:PutRolePolicy",
-                "iam:AttachRolePolicy",
-                "iam:DetachRolePolicy",
-                "iam:PassRole",
-                "iam:DeleteRole",
-                "iam:CreatePolicy",
-                "iam:GetPolicy",
-                "iam:GetPolicyVersion",
-                "iam:ListPolicyVersions",
-                "iam:DeletePolicy"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "apigateway:POST",
-                "apigateway:GET",
-                "apigateway:PUT",
-                "apigateway:DELETE",
-                "apigateway:PATCH"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "lambda:CreateFunction",
-                "lambda:UpdateFunctionCode",
-                "lambda:UpdateFunctionConfiguration",
-                "lambda:DeleteFunction",
-                "lambda:GetFunction",
-                "lambda:GetFunctionConfiguration",
-                "lambda:ListVersionsByFunction",
-                "lambda:GetFunctionCodeSigningConfig",
-                "lambda:AddPermission",
-                "lambda:GetPolicy",
-                "lambda:RemovePermission"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
-
-*Note:* For development or testing, you might temporarily use an account with AdministratorAccess. For production, apply the least-privilege principle.
+Make sure that you're logged into the AWS CLI with a user account containing AdminAccess.
 
 ## Deployment
 
@@ -116,49 +38,48 @@ This command will remove all deployed AWS resources managed by Terraform. **Caut
 
 After a successful deployment, verify that the resources are properly set up by:
 - Checking the AWS Lambda console for the deployed function.
-- Confirming that DynamoDB tables (DietGoals, MealLogs, ValidUsers) are created.
+- Confirming that DynamoDB tables (`DietGoals`, `MealLogs`, `ValidUsers`) are created.
 - Verifying the API Gateway endpoints using tools such as Postman or cURL.
 - Reviewing CloudWatch logs for any errors or execution details of the Lambda function.
 
 ## Updating the Lambda Function
 
 To update the Lambda function code:
+
 1. Modify the `lambda_function.py` file as needed.
 2. Redeploy the changes with:
-   
+
    ```bash
    make deploy NAMESPACE=mycustomnamespace
    ```
 
-## Adding a user
+## Adding a User
+
 After deploying, you can add users to the application.
-1. Request or assign a passphrase from user
-2. Submit passphrase to the user database
-   
+
+1. Request or assign a passphrase from the user.
+2. Submit the passphrase to the user database:
+
    ```bash
    ./generated_resources/add_valid_user.sh "<passphrase>"
    ```
-3. Send instructions in 'new_user_instructions.txt' and 'openapi.yaml' to new user.
+
+3. Send instructions in `new_user_instructions.txt` and `openapi.yaml` to the new user.
+
+## Demo Photos
+### Meal Logging
+![Meal Logging](demo/meal_logging.png)
+
+### Diet Diary Checking
+![Diet Diary Checking](demo/diet_diary.png)
+
+### Personalized Goal Setting
+![Goal Setting](demo/goal_setting.png)
+
 
 ## Troubleshooting
 
 - **Terraform Plan Fails:** Verify that your AWS CLI credentials are correctly configured and that you have sufficient IAM permissions.
 - **Resource Conflicts:** If you encounter issues with resource names (e.g., duplicates), consider using a unique namespace.
 - **Lambda Deployment Errors:** Check CloudWatch logs for detailed error messages regarding the Lambda function.
-- **API Gateway Issues:** Ensure the integration between API Gateway and Lambda is correctly configured and that permissions (via `aws_lambda_permission`) are set.
-
-## Contributing
-
-Contributions are welcome. Please fork this repository and submit pull requests with a clear description of your changes. For significant modifications, consider opening an issue first to discuss your ideas.
-
-## License
-
-Diet Diary GPT © 2025 by Nicholas Ziolkowski is licensed under CC BY-NC-SA 4.0. See the [`LICENSE`](`LICENSE`) file for details.
-
-## Contact
-
-For further questions or support, please open an issue in this repository or contact the project maintainers.
-
----
-
-This document provides an overview of setting up and managing the Diet Tracker backend infrastructure. For advanced troubleshooting and additional configurations, refer to the official AWS and Terraform documentation.
+- **API Gateway Issues:** Ensu
