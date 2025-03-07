@@ -4,6 +4,7 @@
 
 ### 🔧 Changes
 - **Correct meal database keys**: Provide more comprehensive keys for the meal database to ensure that multiple meals can be logged a day with fast recall.
+- **Macros sum**: Adjust prompt to be sure that macronutrients roughly line up with the total calories.
 
 ## [1.0.1] - Update
 
